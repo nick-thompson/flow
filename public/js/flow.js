@@ -125,10 +125,18 @@ var sketch = Sketch.create({
   },
 
   draw: function () {
-    this.strokeStyle = "#fd2567";
-    this.lineWidth = 1;
-    curveThroughPoints(path, this);
-    this.stroke();
+    var i = 4;
+    while (i--) {
+      this.beginPath();
+      this.strokeStyle = (i === 0) 
+        ? "#e5e5e5"
+        : "rgba(253, 37, 103, 0.2)";
+
+      this.lineWidth = (i + 1) * 3 - 2;
+      curveThroughPoints(path, this);
+      this.stroke();
+      this.closePath();
+    }
   },
 
 });
