@@ -1,0 +1,13 @@
+{
+  "name": "flow",
+  "version": "0.1.0",
+  "author": "Nick Thompson <ncthom91@gmail.com>",
+  "description": "An audio-visual WebRTC experiment.",
+  "dependencies" : {
+    "socket.io": "latest"
+  },
+  "license": "MIT",
+  "engines": {
+    "node": ">=0.6"
+  }
+}
