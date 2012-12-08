@@ -8,7 +8,9 @@ var path = [], queue = [];
 var settings = {
   context: new webkitAudioContext(),
   users: {},
-  chunkSize: 1024
+  chunkSize: 1024,
+  response: 0.1,
+  tension: 0.5
 };
 
 /*
@@ -18,7 +20,7 @@ var settings = {
  */
 
 var spectralCentroid = function (spectrum) {
-  var threshold = 0.05
+  var threshold = 0.005
     , sumFX = 0.0
     , sumX = 0.0
     , n = spectrum.length
@@ -117,10 +119,11 @@ var sketch = Sketch.create({
   },
 
   update: function () {
-    var next = queue.shift() || 0.0;
-    path[0].y += (next - path[0].y) * 0.02;
-    for (var i = 1; i < path.length; i++) {
-      path[i].y += (path[i-1].y - path[i].y) * (0.05 * i);
+    var next, scaleFactor;
+    for (var i = 0, n = path.length; i < n; i++) {
+      next = path[i - 1] || { y : queue.shift() || 0.0 };
+      scaleFactor = ((n - i) / n) * settings.response;
+      path[i].y += (next.y - path[i].y) * scaleFactor;
     }
   },
 
@@ -129,7 +132,7 @@ var sketch = Sketch.create({
     while (i--) {
       this.beginPath();
       this.strokeStyle = (i === 0) 
-        ? "#e5e5e5"
+        ? "rgba(253, 37, 103, 1.0)"
         : "rgba(253, 37, 103, 0.2)";
 
       this.lineWidth = (i + 1) * 3 - 2;
