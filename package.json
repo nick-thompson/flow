@@ -4,7 +4,8 @@
   "author": "Nick Thompson <ncthom91@gmail.com>",
   "description": "An audio-visual WebRTC experiment.",
   "dependencies" : {
-    "socket.io": "latest"
+    "socket.io": "0.9.*",
+    "express": "3.x"
   },
   "license": "MIT",
   "engines": {

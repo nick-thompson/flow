@@ -1,21 +1,18 @@
 
-var app = require('http').createServer(handler)
-  , io = require('socket.io').listen(app)
-  , fs = require('fs');
+var express = require('express')
+  , app = express()
+  , server = require('http').createServer(app)
+  , io = require('socket.io').listen(server);
 
-app.listen(8000);
+app.configure(function () {
+  app.use(express.static(__dirname + '/public'));
+});
 
-function handler (req, res) {
-  fs.readFile(__dirname + '/public/index.html', function (err, data) {
-    if (err) {
-      res.writeHead(500);
-      return res.end('Error loading index.html');
-    }
+app.get('/', function (req, res) {
+  res.sendfile('public/index.html');
+});
 
-    res.writeHead(200);
-    res.end(data);
-  });
-};
+server.listen(8000);
 
 io.sockets.on('connection', function (socket) {
   socket.emit('news', { hello: 'world' });
@@ -23,3 +20,4 @@ io.sockets.on('connection', function (socket) {
     console.log(data);
   });
 });
+
