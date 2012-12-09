@@ -142,7 +142,9 @@ var build = function () {
           fft.forward(data);
           freq = spectralCentroid(fft.spectrum);
           if (freq > 100 && freq < 1000) {
-            freq = ((freq - 100) / 1000) * that.height;
+            freq -= 99;
+            freq = (Math.log(freq) / Math.LN10) / (Math.log(1000) / Math.LN10);
+            freq *= that.height;
 
             settings.users[settings.id].queue.push(Math.floor(freq));
             socket.emit('data', Math.floor(freq));
