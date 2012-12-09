@@ -7,7 +7,8 @@ var express = require('express')
   , app = express()
   , server = require('http').createServer(app)
   , io = require('socket.io').listen(server)
-  , users = {};
+  , users = {}
+  , colors = ['#aaee22', '#04dbe5', '#ff0077', '#ffb412', '#f6c83d'];
 
 /**
  * Settings.
@@ -36,7 +37,7 @@ io.sockets.on('connection', function (socket) {
   // Track the user
   var user = {
     id: socket.id,
-    color: '#fd2567',
+    color: colors[~~( Math.random() * 5 )],
     queue: []
   };
 

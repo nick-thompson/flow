@@ -172,20 +172,13 @@ var build = function () {
 
     draw: function () {
       for (var prop in settings.users) {
-        var user = settings.users[prop]
-          , i = 4;
-
-        while (i--) {
-          this.beginPath();
-          this.strokeStyle = (i === 0) 
-            ? "rgba(253, 37, 103, 1.0)"
-            : "rgba(253, 37, 103, 0.2)";
-
-          this.lineWidth = (i + 1) * 3 - 2;
-          curveThroughPoints(user.path, this);
-          this.stroke();
-          this.closePath();
-        }
+        var user = settings.users[prop];
+        this.beginPath();
+        this.strokeStyle = user.color;
+        this.lineWidth = 1;
+        curveThroughPoints(user.path, this);
+        this.stroke();
+        this.closePath();
       }
     }
 
