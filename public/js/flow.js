@@ -128,6 +128,8 @@ var curveThroughPoints = function (points, ctx) {
 var build = function () {
   settings.sketch = Sketch.create({
 
+    container: document.getElementById("container"),
+
     setup: function () {
       var that = this;
       navigator.webkitGetUserMedia({ audio: true }, function (stream) {
