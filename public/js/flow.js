@@ -133,14 +133,18 @@ var build = function () {
       });
     },
 
-    // update: function () {
-    //   var next, scaleFactor;
-    //   for (var i = 0, n = path.length; i < n; i++) {
-    //     next = path[i - 1] || { y : queue.shift() || 0.0 };
-    //     scaleFactor = ((n - i) / n) * settings.response;
-    //     path[i].y += (next.y - path[i].y) * scaleFactor;
-    //   }
-    // },
+    update: function () {
+      for (var prop in settings.users) {
+        var user = settings.users[prop]
+          , next, scaleFactor;
+
+        for (var i = 0, n = user.path.length; i < n; i++) {
+          next = user.path[i - 1] || { y: user.queue.shift() || 0.0 };
+          scaleFactor = ((n - i) / n) * settings.response;
+          user.path[i].y += (next.y - user.path[i].y) * scaleFactor;
+        }
+      }
+    },
 
     draw: function () {
       for (var prop in settings.users) {
