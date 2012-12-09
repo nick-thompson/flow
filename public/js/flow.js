@@ -96,31 +96,6 @@ var spectralCentroid = function (spectrum) {
 };
 
 /**
- * Draw a quadratic curve through n points
- * on a given context.
- * Borrowed from: https://github.com/soulwire/Muscular-Hydrostats
- */
-
-var curveThroughPoints = function (points, ctx) {
-  var i, n, a, b, x, y;
-  for (i = 1, n = points.length - 2; i < n; i++) {
-
-    a = points[i];
-    b = points[i + 1];
-
-    x = (a.x + b.x) * 0.5;
-    y = (a.y + b.y) * 0.5;
-
-    ctx.quadraticCurveTo(a.x, a.y, x, y);
-  }
-
-  a = points[i];
-  b = points[i + 1];
-
-  ctx.quadraticCurveTo(a.x, a.y, b.x, b.y);
-};
-
-/**
  * Acquire microphone input and initialize
  * the flow sketch.
  */
@@ -178,10 +153,25 @@ var build = function () {
         this.beginPath();
         this.strokeStyle = user.color;
         this.lineWidth = 1;
-        curveThroughPoints(user.path, this);
+        this.curveThroughPoints(user.path);
         this.stroke();
         this.closePath();
       }
+    },
+
+    curveThroughPoints: function (points) {
+      var i, n, a, b, x, y;
+      for (i = 1, n = points.length - 2; i < n; i++) {
+        a = points[i];
+        b = points[i + 1];
+        x = (a.x + b.x) * 0.5;
+        y = (a.y + b.y) * 0.5;
+        this.quadraticCurveTo(a.x, a.y, x, y);
+      }
+
+      a = points[i];
+      b = points[i + 1];
+      this.quadraticCurveTo(a.x, a.y, b.x, b.y);
     }
 
   });
