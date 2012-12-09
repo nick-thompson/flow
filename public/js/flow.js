@@ -1,5 +1,5 @@
 
-/*
+/**
  * Global application setings
  */
 
@@ -9,11 +9,40 @@ var settings = {
   context: new webkitAudioContext(),
   users: {},
   chunkSize: 1024,
+  pathLength: 20,
   response: 0.1,
   tension: 0.5
 };
 
-/*
+/**
+ * Socket actions
+ */
+
+var socket = io.connect('http://localhost');
+
+// Sent from the server after initial connection is made
+socket.on('users', function (data) {
+  var start = window.innerWidth / 2
+    , users = data.users;
+  for (var prop in users) {
+    users[prop].path = [];
+    for (var i = 0; i < settings.pathLength; i++) {
+      users[prop].path.push({
+        x: start,
+        y: 0.0
+      });
+    }
+  }
+  settings.id = data.you.id;
+  settings.color = data.you.color;
+  settings.users = data.users;
+  console.log(settings);
+});
+
+socket.on('data', function (data) {
+});
+
+/**
  * Returns a weighted avarage of frequencies present
  * in a signal.
  * Borrowed from: https://github.com/jsantell/beatbox
@@ -42,7 +71,7 @@ var spectralCentroid = function (spectrum) {
 
 };
 
-/*
+/**
  * Draw a quadratic curve through n points
  * on a given context.
  * Borrowed from: https://github.com/soulwire/Muscular-Hydrostats
@@ -69,7 +98,7 @@ var curveThroughPoints = function (points, ctx) {
   ctx.quadraticCurveTo(a.x, a.y, b.x, b.y);
 };
 
-/*
+/**
  * Acquire microphone input and initialize
  * the flow sketch.
  */
@@ -101,21 +130,6 @@ var sketch = Sketch.create({
       processor.connect(settings.context.destination);
 
     });
-
-
-    // Initialize the path
-    // TODO: Move this...
-    var width = this.width
-      , half = width / 2
-      , step = half / 20;
-
-    for (var i = 0; i < 20; i++) {
-      path.push({
-        x: half - step * i,
-        y: 0.0
-      });
-    }
-
   },
 
   update: function () {
