@@ -43,7 +43,7 @@ socket.on('users', function (data) {
 // Server forwards a packet of data corresponding to a user's
 // position update.
 socket.on('data', function (data) {
-  settings.users[data.id].queue.push(data);
+  settings.users[data.id].queue.push(data.data);
 });
 
 socket.on('newUser', function (user) {
@@ -138,7 +138,9 @@ var build = function () {
           freq = spectralCentroid(fft.spectrum);
           if (freq > 100 && freq < 1000) {
             freq = ((freq - 100) / 1000) * that.height;
+
             settings.users[settings.id].queue.push(Math.floor(freq));
+            console.log(settings.users[settings.id].queue);
             socket.emit('data', Math.floor(freq));
           }
         };
