@@ -3,8 +3,6 @@
  * Global application setings
  */
 
-var path = [], queue = [];
-
 var settings = {
   context: new webkitAudioContext(),
   users: {},
@@ -23,22 +21,27 @@ var socket = io.connect('http://localhost');
 // Sent from the server after initial connection is made
 socket.on('users', function (data) {
   var start = window.innerWidth / 2
+    , step = start / settings.pathLength
     , users = data.users;
+
   for (var prop in users) {
     users[prop].path = [];
     for (var i = 0; i < settings.pathLength; i++) {
       users[prop].path.push({
         x: start,
-        y: 0.0
+        y: 10.0
       });
+      start -= step;
     }
   }
   settings.id = data.you.id;
   settings.color = data.you.color;
   settings.users = data.users;
-  console.log(settings);
+  build();
 });
 
+// Server forwards a packet of data corresponding to a user's
+// position update.
 socket.on('data', function (data) {
 });
 
@@ -60,7 +63,7 @@ var spectralCentroid = function (spectrum) {
       ? 0.0
       : spectrum[n];
 
-    fn = n * 44100.0 / 1024.0;
+    fn = n * settings.context.sampleRate / settings.chunkSize;
     sumFX += fn * xn;
     sumX += xn;
   }
@@ -68,7 +71,6 @@ var spectralCentroid = function (spectrum) {
   return (sumX > 0) 
     ? sumFX / sumX
     : 0.0;
-
 };
 
 /**
@@ -78,9 +80,7 @@ var spectralCentroid = function (spectrum) {
  */
 
 var curveThroughPoints = function (points, ctx) {
-
   var i, n, a, b, x, y;
-
   for (i = 1, n = points.length - 2; i < n; i++) {
 
     a = points[i];
@@ -103,57 +103,63 @@ var curveThroughPoints = function (points, ctx) {
  * the flow sketch.
  */
 
-var sketch = Sketch.create({
+var build = function () {
+  settings.sketch = Sketch.create({
 
-  setup: function () {
+    setup: function () {
+      var that = this;
+      navigator.webkitGetUserMedia({ audio: true }, function (stream) {
+        var source = settings.context.createMediaStreamSource(stream)
+          , processor = settings.context.createJavaScriptNode(settings.chunkSize, 1, 1)
+          , fft = new FFT(settings.chunkSize, settings.context.sampleRate);
 
-    var that = this;
-    navigator.webkitGetUserMedia({ audio: true }, function (stream) {
+        processor.onaudioprocess = window.audioProcess = function (e) {
+          var data = e.inputBuffer.getChannelData(0)
+            , freq;
 
-      var source = settings.context.createMediaStreamSource(stream)
-        , processor = settings.context.createJavaScriptNode(settings.chunkSize, 1, 1)
-        , fft = new FFT(settings.chunkSize, settings.context.sampleRate);
+          fft.forward(data);
+          freq = spectralCentroid(fft.spectrum);
+          if (freq > 100 && freq < 1000) {
+            freq = ((freq - 100) / 1000) * that.height;
 
-      processor.onaudioprocess = window.audioProcess = function (e) {
-        var data = e.inputBuffer.getChannelData(0)
-          , freq;
+            // This should be a socket emit event!
+            settings.users[settings.id].queue.push(Math.floor(freq));
+          }
+        };
 
-        fft.forward(data);
-        freq = spectralCentroid(fft.spectrum);
-        if (freq > 100 && freq < 1000) {
-          freq = ((freq - 100) / 1000) * that.height;
-          queue.push(Math.floor(freq));
+        source.connect(processor);
+        processor.connect(settings.context.destination);
+
+      });
+    },
+
+    // update: function () {
+    //   var next, scaleFactor;
+    //   for (var i = 0, n = path.length; i < n; i++) {
+    //     next = path[i - 1] || { y : queue.shift() || 0.0 };
+    //     scaleFactor = ((n - i) / n) * settings.response;
+    //     path[i].y += (next.y - path[i].y) * scaleFactor;
+    //   }
+    // },
+
+    draw: function () {
+      for (var prop in settings.users) {
+        var user = settings.users[prop]
+          , i = 4;
+
+        while (i--) {
+          this.beginPath();
+          this.strokeStyle = (i === 0) 
+            ? "rgba(253, 37, 103, 1.0)"
+            : "rgba(253, 37, 103, 0.2)";
+
+          this.lineWidth = (i + 1) * 3 - 2;
+          curveThroughPoints(user.path, this);
+          this.stroke();
+          this.closePath();
         }
-      };
-
-      source.connect(processor);
-      processor.connect(settings.context.destination);
-
-    });
-  },
-
-  update: function () {
-    var next, scaleFactor;
-    for (var i = 0, n = path.length; i < n; i++) {
-      next = path[i - 1] || { y : queue.shift() || 0.0 };
-      scaleFactor = ((n - i) / n) * settings.response;
-      path[i].y += (next.y - path[i].y) * scaleFactor;
+      }
     }
-  },
 
-  draw: function () {
-    var i = 4;
-    while (i--) {
-      this.beginPath();
-      this.strokeStyle = (i === 0) 
-        ? "rgba(253, 37, 103, 1.0)"
-        : "rgba(253, 37, 103, 0.2)";
-
-      this.lineWidth = (i + 1) * 3 - 2;
-      curveThroughPoints(path, this);
-      this.stroke();
-      this.closePath();
-    }
-  },
-
-});
+  });
+};
