@@ -47,6 +47,18 @@ socket.on('data', function (data) {
 });
 
 socket.on('newUser', function (user) {
+  var start = window.innerWidth / 2
+    , step = start / settings.pathLength
+
+  user.path = [];
+  for (var i = 0; i < settings.pathLength; i++) {
+    user.path.push({
+      x: start,
+      y: 10.0
+    });
+    start -= step;
+  }
+
   settings.users[user.id] = user;
 });
 
