@@ -20,18 +20,23 @@ var socket = io.connect();
 
 // Sent from the server after initial connection is made
 socket.on('users', function (data) {
-  var start = window.innerWidth / 2
-    , step = start / settings.pathLength
-    , users = data.users;
+  var users = data.users
+    , start, step;
 
   for (var prop in users) {
+
+    start = window.innerWidth / 2;
+    step = start / settings.pathLength;
     users[prop].path = [];
+
     for (var i = 0; i < settings.pathLength; i++) {
+
       users[prop].path.push({
         x: start,
         y: 10.0
       });
       start -= step;
+
     }
   }
   settings.id = data.you.id;
@@ -140,7 +145,6 @@ var build = function () {
             freq = ((freq - 100) / 1000) * that.height;
 
             settings.users[settings.id].queue.push(Math.floor(freq));
-            console.log(settings.users[settings.id].queue);
             socket.emit('data', Math.floor(freq));
           }
         };
