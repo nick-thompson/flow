@@ -42,6 +42,9 @@ io.sockets.on('connection', function (socket) {
 
   users[socket.id] = user;
 
+  // Let active users know about the new guy
+  socket.broadcast.emit('newUser', user);
+
   // Define disconnect event
   socket.on('disconnect', function () {
     delete users[socket.id];

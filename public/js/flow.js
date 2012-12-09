@@ -46,6 +46,10 @@ socket.on('data', function (data) {
   settings.users[data.id].queue.push(data);
 });
 
+socket.on('newUser', function (user) {
+  settings.users[user.id] = user;
+});
+
 /**
  * Returns a weighted avarage of frequencies present
  * in a signal.
