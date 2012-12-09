@@ -16,7 +16,7 @@ var settings = {
  * Socket actions
  */
 
-var socket = io.connect('http://localhost');
+var socket = io.connect();
 
 // Sent from the server after initial connection is made
 socket.on('users', function (data) {

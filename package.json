@@ -1,14 +1,18 @@
 {
   "name": "flow",
-  "version": "0.1.0",
+  "version": "0.1.0-1",
   "author": "Nick Thompson <ncthom91@gmail.com>",
   "description": "An audio-visual WebRTC experiment.",
-  "dependencies" : {
-    "socket.io": "0.9.*",
+  "dependencies": {
+    "socket.io": "0.9.11",
     "express": "3.x"
   },
   "license": "MIT",
   "engines": {
     "node": ">=0.6"
+  },
+  "subdomain": "trypwire.flow",
+  "scripts": {
+    "start": "app.js"
   }
 }
