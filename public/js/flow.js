@@ -9,8 +9,8 @@ var context = new webkitAudioContext()
       response: 0.1,
       tension: 0.9,
       inputRange: {
-        low: 0,
-        high: 1000
+        low: 80,
+        high: 800
       }
     }
   , socket;
@@ -165,6 +165,7 @@ async.waterfall([
           this.beginPath();
           this.strokeStyle = user.color;
           this.lineWidth = 2;
+          this.lineCaps = "round";
           this.curveThroughPoints(user.path);
           this.stroke();
           this.closePath();

@@ -9,23 +9,24 @@
     <div id="container"></div>
     <div id="info">
       <p>
-        Flow is an audio-visual experiment relying on WebRTC audio input and 
-        support for the Web Audio API. The only officially supported browser is 
-        Chrome. If you haven't already, you must enable the "Web Audio Input" 
-        flag in "chrome:///flags".
+        Flow is an audiovisual HTML5/WebRTC experiment which analyzes your microphone input's
+        average frequency, and uses that value to guide a line through space. The only
+        officially supported browser is Chrome. If you haven't already done so, you need
+        to enable the "Web Audio Input" flag in "chrome://flags".
       </p>
 
       <p>
-        Each active participant is represented by a line. Microphone input is analyzed, 
-        and the spectral centroid of each 1024 sample frames is used to govern the 
-        vertical positioning of the line on the canvas. Participants are connected in 
-        real time via Socket.io and a Node.js server. Microphone input itself is not
-        transmitted to other clients, only the position value.
+        This experiment links users in real time via Socket.io and Node.js, so that
+        each user can see each other users lines, creating a user-driven visual product
+        in each browser window. Your microphone data is not transmitted, only the calculated
+        frequency value.
       </p>
       <p>
         <a href="https://twitter.com/share" class="twitter-share-button" data-url="http://trypwire.flow.jit.su/" data-text="Flow: an audiovisual HTML5 + WebRTC experiment." data-via="ncthom91" data-hashtags="webaudio">Tweet</a>
         <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
       </p>
+      <a href="http://github.com/nick-thompson/flow">Source Code</a>
+      <br/>
       Written by Nick Thompson.
       <br/>
       &copy; 2012; MIT License
