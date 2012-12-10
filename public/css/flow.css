@@ -36,6 +36,7 @@ li {
 a:link,
 a:visited,
 a:active {
+  padding: 8px 0;
   color: #aaee22;
   text-decoration: none;
 }
