@@ -154,8 +154,10 @@ async.waterfall([
             , next, scaleFactor;
 
           for (var i = 0, n = user.path.length; i < n; i++) {
-            // Better tension calculation??
-            next = user.path[i - 1] || { y: user.queue.shift() || 0.0 };
+            next = (i > 0)
+              ? user.path[i - 1]
+              : { y: user.queue.shift() || user.path[i].y };
+
             scaleFactor = ((n - i) / n) * settings.response;
             user.path[i].y += (next.y - user.path[i].y) * scaleFactor;
           }
