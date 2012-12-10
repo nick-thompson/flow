@@ -4,44 +4,17 @@ var context = new webkitAudioContext()
   , height = window.innerHeight
   , settings = {
       users: {},
-      chunkSize: 1024,
+      chunkSize: 4096,
       pathLength: 20,
       response: 0.1,
       tension: 0.9,
       inputRange: {
         low: 80,
         high: 800
-      }
+      },
+      inputThreshold: 0.002
     }
   , socket;
-
-/**
- * Returns a weighted avarage of frequencies present
- * in a signal.
- * Borrowed from: https://github.com/jsantell/beatbox
- */
-
-var spectralCentroid = function (spectrum) {
-  var threshold = 0.005
-    , sumFX = 0.0
-    , sumX = 0.0
-    , n = spectrum.length
-    , xn, fn;
-
-  while (n--) {
-    xn = Math.abs(spectrum[n]) < threshold
-      ? 0.0
-      : spectrum[n];
-
-    fn = n * context.sampleRate / settings.chunkSize;
-    sumFX += fn * xn;
-    sumX += xn;
-  }
-
-  return (sumX > 0) 
-    ? sumFX / sumX
-    : 0.0;
-};
 
 /**
  * Control flow
@@ -113,25 +86,56 @@ async.waterfall([
     navigator.webkitGetUserMedia({ audio: true }, function (stream) {
       var source = context.createMediaStreamSource(stream)
         , processor = context.createJavaScriptNode(settings.chunkSize, 1, 1)
+        , lowpass = context.createBiquadFilter()
+        , highpass = context.createBiquadFilter()
         , fft = new FFT(settings.chunkSize, context.sampleRate);
+
+      lowpass.type = 1;
+      lowpass.frequency.value = settings.inputRange.high;
+
+      highpass.type = 2;
+      highpass.frequency.value = settings.inputRange.low;
 
       processor.onaudioprocess = window.audioProcess = function (e) {
         var data = e.inputBuffer.getChannelData(0)
-          , denom = Math.log(settings.inputRange.high)
-          , f;
+          , max = 0.0
+          , idx = 0
+          , spectrum, pitch;
 
         fft.forward(data);
-        f = spectralCentroid(fft.spectrum);
-        if (f > settings.inputRange.low && f < settings.inputRange.high) {
-          f = Math.floor((Math.log(f) / denom) * height);
-          settings.users[settings.id].queue.push(f);
+        spectrum = fft.spectrum;
+        for (var i = 0, n = spectrum.length; i < n; i++) {
+          if (spectrum[i] > max) {
+            max = spectrum[i];
+            idx = i;
+          }
+        }
 
-          // Scale f by window height for the other users
-          socket.emit("data", (f / height));
+        if (max > settings.inputThreshold) {
+
+          pitch = idx * context.sampleRate / settings.chunkSize;
+
+          // Check boundaries
+          pitch = (pitch < settings.inputRange.low)
+            ? settings.inputRange.low
+            : (pitch > settings.inputRange.high)
+              ? settings.inputRange.high
+              : pitch;
+
+          // Scaling by window height
+          pitch = (pitch / settings.inputRange.high) * height;
+
+          settings.users[settings.id].queue.push(pitch);
+
+          // Scale position by window height for the other users
+          socket.emit("data", (pitch / height));
+
         }
       };
 
-      source.connect(processor);
+      source.connect(lowpass);
+      lowpass.connect(highpass);
+      highpass.connect(processor);
       processor.connect(context.destination);
       next(null);
     });
