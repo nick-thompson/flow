@@ -185,12 +185,12 @@ async.waterfall([
           b = points[i + 1];
           x = (a.x + b.x) * 0.5;
           y = (a.y + b.y) * 0.5;
-          this.quadraticCurveTo(a.x, a.y, x, y);
+          this.quadraticCurveTo(a.x, height - a.y, x, height - y);
         }
 
         a = points[i];
         b = points[i + 1];
-        this.quadraticCurveTo(a.x, a.y, b.x, b.y);
+        this.quadraticCurveTo(a.x, height - a.y, b.x, height - b.y);
       }
 
     });
