@@ -1,8 +1,4 @@
 
-/**
- * Module dependencies.
- */
-
 var express = require('express')
   , app = express()
   , server = require('http').createServer(app)
@@ -10,28 +6,16 @@ var express = require('express')
   , users = {}
   , colors = ['#aaee22', '#04dbe5', '#ff0077', '#ffb412', '#f6c83d'];
 
-/**
- * Settings.
- */
-
 app.configure(function () {
   app.use(express.static(__dirname + '/public'));
 });
-
-/**
- * Dispensing index.html
- */
 
 app.get('/', function (req, res) {
   res.sendfile('public/index.html');
 });
 
-/**
- * Socketry!
- */
 
 server.listen(8000);
-
 io.sockets.on('connection', function (socket) {
 
   // Track the user
@@ -48,8 +32,7 @@ io.sockets.on('connection', function (socket) {
     delete users[socket.id];
   });
 
-  // Forward data from a single socket
-  // to ever other connected client
+  // Forward data from a single socket to ever other connected client
   socket.on('data', function (data) {
     socket.broadcast.emit('data', {
       data: data,
@@ -58,10 +41,10 @@ io.sockets.on('connection', function (socket) {
   });
 
   // Let active users know about the new guy
-  socket.broadcast.emit('newUser', user);
+  socket.broadcast.emit('userJoined', user);
 
   // Return a state object
-  socket.emit('users', {
+  socket.emit('initialize', {
     you: user,
     users: users
   });

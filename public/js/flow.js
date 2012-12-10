@@ -1,18 +1,17 @@
 
-/**
- * Global application setings
- */
-
-var context = "hi"
+var context = new webkitAudioContext()
   , width = window.innerWidth
   , height = window.innerHeight
   , settings = {
-      context: new webkitAudioContext(),
       users: {},
       chunkSize: 1024,
       pathLength: 20,
       response: 0.1,
-      tension: 0.5
+      tension: 0.5,
+      inputRange: {
+        low: 100,
+        high: 1000
+      }
     }
   , socket;
 
@@ -34,7 +33,7 @@ var spectralCentroid = function (spectrum) {
       ? 0.0
       : spectrum[n];
 
-    fn = n * settings.context.sampleRate / settings.chunkSize;
+    fn = n * context.sampleRate / settings.chunkSize;
     sumFX += fn * xn;
     sumX += xn;
   }
@@ -56,13 +55,13 @@ async.waterfall([
   function (next) {
       
     socket = io.connect();
-    socket.on('users', function (data) {
+    socket.on("initialize", function (data) {
       var users = data.users
         , start, step;
 
       for (var prop in users) {
 
-        start = window.innerWidth / 2;
+        start = width - 252;
         step = start / settings.pathLength;
         users[prop].path = [];
 
@@ -70,10 +69,9 @@ async.waterfall([
 
           users[prop].path.push({
             x: start,
-            y: 10.0
+            y: 0.0
           });
           start -= step;
-
         }
       }
       settings.id = data.you.id;
@@ -82,11 +80,11 @@ async.waterfall([
       next(null);
     });
 
-    socket.on('data', function (data) {
+    socket.on("data", function (data) {
       settings.users[data.id].queue.push(data.data);
     });
 
-    socket.on('newUser', function (user) {
+    socket.on("userJoined", function (user) {
       var start = window.innerWidth / 2
         , step = start / settings.pathLength
 
@@ -107,9 +105,9 @@ async.waterfall([
   function (next) {
 
     navigator.webkitGetUserMedia({ audio: true }, function (stream) {
-      var source = settings.context.createMediaStreamSource(stream)
-        , processor = settings.context.createJavaScriptNode(settings.chunkSize, 1, 1)
-        , fft = new FFT(settings.chunkSize, settings.context.sampleRate);
+      var source = context.createMediaStreamSource(stream)
+        , processor = context.createJavaScriptNode(settings.chunkSize, 1, 1)
+        , fft = new FFT(settings.chunkSize, context.sampleRate);
 
       processor.onaudioprocess = window.audioProcess = function (e) {
         var data = e.inputBuffer.getChannelData(0)
@@ -118,6 +116,7 @@ async.waterfall([
         fft.forward(data);
         freq = spectralCentroid(fft.spectrum);
         if (freq > 100 && freq < 1000) {
+          // CLEAN UP!
           freq -= 99;
           freq = (Math.log(freq) / Math.LN10) / (Math.log(1000) / Math.LN10);
           freq *= height;
@@ -128,7 +127,7 @@ async.waterfall([
       };
 
       source.connect(processor);
-      processor.connect(settings.context.destination);
+      processor.connect(context.destination);
       next(null);
     });
 
@@ -146,6 +145,7 @@ async.waterfall([
             , next, scaleFactor;
 
           for (var i = 0, n = user.path.length; i < n; i++) {
+            // CLEAN UP!
             next = user.path[i - 1] || { y: user.queue.shift() || 0.0 };
             scaleFactor = ((n - i) / n) * settings.response;
             user.path[i].y += (next.y - user.path[i].y) * scaleFactor;
