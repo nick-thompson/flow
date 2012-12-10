@@ -9,7 +9,7 @@ var context = new webkitAudioContext()
       response: 0.1,
       tension: 0.9,
       inputRange: {
-        low: 80,
+        low: 120,
         high: 800
       },
       inputThreshold: 0.001
@@ -123,7 +123,8 @@ async.waterfall([
               : pitch;
 
           // Scaling by window height
-          pitch = (pitch / settings.inputRange.high) * height;
+          var high = settings.inputRange.high - settings.inputRange.low;
+          pitch = (( pitch - settings.inputRange.low ) / high) * height;
 
           settings.users[settings.id].queue.push(pitch);
 
