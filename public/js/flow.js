@@ -102,6 +102,10 @@ async.waterfall([
       settings.users[user.id] = user;
     });
 
+    socket.on("userLeft", function (id) {
+      delete settings.users[id];
+    });
+
   },
 
   function (next) {

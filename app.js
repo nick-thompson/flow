@@ -30,6 +30,7 @@ io.sockets.on('connection', function (socket) {
   // Define disconnect event
   socket.on('disconnect', function () {
     delete users[socket.id];
+    socket.broadcast.emit('userLeft', socket.id);
   });
 
   // Forward data from a single socket to ever other connected client
