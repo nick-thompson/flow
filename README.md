@@ -1,5 +1,6 @@
-*Flow* is an audio-visual experiment relying on WebRTC audio input and support for 
-the Web Audio API. The only officially supported browser is Chrome Canary. If 
+## Flow
+An audio-visual experiment relying on WebRTC audio input and support for 
+the Web Audio API. The only officially supported browser is Chrome. If 
 you haven't already, you must enable the "Web Audio Input" flag in 
 "chrome:///flags".
 

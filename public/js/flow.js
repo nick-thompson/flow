@@ -81,11 +81,13 @@ async.waterfall([
     });
 
     socket.on("data", function (data) {
+      // Make sure to re-scale height here according to local height
+      data.data *= height;
       settings.users[data.id].queue.push(data.data);
     });
 
     socket.on("userJoined", function (user) {
-      var start = window.innerWidth / 2
+      var start = width - 252
         , step = start / settings.pathLength
 
       user.path = [];
@@ -119,7 +121,9 @@ async.waterfall([
         if (f > settings.inputRange.low && f < settings.inputRange.high) {
           f = Math.floor((Math.log(f) / denom) * height);
           settings.users[settings.id].queue.push(f);
-          socket.emit("data", f);
+
+          // Scale f by window height for the other users
+          socket.emit("data", (f / height));
         }
       };
 
