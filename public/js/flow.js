@@ -12,7 +12,7 @@ var context = new webkitAudioContext()
         low: 80,
         high: 800
       },
-      inputThreshold: 0.002
+      inputThreshold: 0.001
     }
   , socket;
 
