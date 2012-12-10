@@ -7,7 +7,7 @@ var context = new webkitAudioContext()
       chunkSize: 1024,
       pathLength: 20,
       response: 0.1,
-      tension: 0.5,
+      tension: 0.9,
       inputRange: {
         low: 0,
         high: 1000
