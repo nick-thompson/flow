@@ -9,7 +9,7 @@ var context = new webkitAudioContext()
       response: 0.1,
       tension: 0.5,
       inputRange: {
-        low: 100,
+        low: 0,
         high: 1000
       }
     }
@@ -92,7 +92,7 @@ async.waterfall([
       for (var i = 0; i < settings.pathLength; i++) {
         user.path.push({
           x: start,
-          y: 10.0
+          y: 0.0
         });
         start -= step;
       }
@@ -111,18 +111,15 @@ async.waterfall([
 
       processor.onaudioprocess = window.audioProcess = function (e) {
         var data = e.inputBuffer.getChannelData(0)
-          , freq;
+          , denom = Math.log(settings.inputRange.high)
+          , f;
 
         fft.forward(data);
-        freq = spectralCentroid(fft.spectrum);
-        if (freq > 100 && freq < 1000) {
-          // CLEAN UP!
-          freq -= 99;
-          freq = (Math.log(freq) / Math.LN10) / (Math.log(1000) / Math.LN10);
-          freq *= height;
-
-          settings.users[settings.id].queue.push(Math.floor(freq));
-          socket.emit('data', Math.floor(freq));
+        f = spectralCentroid(fft.spectrum);
+        if (f > settings.inputRange.low && f < settings.inputRange.high) {
+          f = Math.floor((Math.log(f) / denom) * height);
+          settings.users[settings.id].queue.push(f);
+          socket.emit("data", f);
         }
       };
 
@@ -145,7 +142,7 @@ async.waterfall([
             , next, scaleFactor;
 
           for (var i = 0, n = user.path.length; i < n; i++) {
-            // CLEAN UP!
+            // Better tension calculation??
             next = user.path[i - 1] || { y: user.queue.shift() || 0.0 };
             scaleFactor = ((n - i) / n) * settings.response;
             user.path[i].y += (next.y - user.path[i].y) * scaleFactor;
