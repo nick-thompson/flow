@@ -21,3 +21,25 @@ body {
   border: 1px solid #222;
   color: #d5d5d5;
 }
+
+ul {
+  list-style-type: none;
+  margin: 0;
+}
+
+li {
+  float: left;
+  margin: 0;
+  margin-right: 10px;
+}
+
+a:link,
+a:visited,
+a:active {
+  color: #aaee22;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
