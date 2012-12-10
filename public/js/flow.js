@@ -159,11 +159,12 @@ async.waterfall([
       },
 
       draw: function () {
+        this.globalCompositeOperation = "lighter";
         for (var prop in settings.users) {
           var user = settings.users[prop];
           this.beginPath();
           this.strokeStyle = user.color;
-          this.lineWidth = 1;
+          this.lineWidth = 2;
           this.curveThroughPoints(user.path);
           this.stroke();
           this.closePath();
