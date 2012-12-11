@@ -9,7 +9,7 @@ var context = new webkitAudioContext()
       response: 0.1,
       tension: 0.9,
       inputRange: {
-        low: 120,
+        low: 200,
         high: 800
       },
       inputThreshold: 0.001
@@ -87,14 +87,11 @@ async.waterfall([
       var source = context.createMediaStreamSource(stream)
         , processor = context.createJavaScriptNode(settings.chunkSize, 1, 1)
         , lowpass = context.createBiquadFilter()
-        , highpass = context.createBiquadFilter()
-        , fft = new FFT(settings.chunkSize, context.sampleRate);
+        , fft = new FFT(settings.chunkSize, context.sampleRate)
+        , maxFreq = settings.inputRange.high - settings.inputRange.low;
 
       lowpass.type = 1;
       lowpass.frequency.value = settings.inputRange.high;
-
-      highpass.type = 2;
-      highpass.frequency.value = settings.inputRange.low;
 
       processor.onaudioprocess = window.audioProcess = function (e) {
         var data = e.inputBuffer.getChannelData(0)
@@ -123,8 +120,7 @@ async.waterfall([
               : pitch;
 
           // Scaling by window height
-          var high = settings.inputRange.high - settings.inputRange.low;
-          pitch = (( pitch - settings.inputRange.low ) / high) * height;
+          pitch = ((pitch - settings.inputRange.low) / maxFreq) * height;
 
           settings.users[settings.id].queue.push(pitch);
 
@@ -135,9 +131,12 @@ async.waterfall([
       };
 
       source.connect(lowpass);
-      lowpass.connect(highpass);
-      highpass.connect(processor);
+      lowpass.connect(processor);
       processor.connect(context.destination);
+      next(null);
+    }, function (err) {
+      delete settings.users[settings.id];
+      alert("Unable to acquire microphone input :(");
       next(null);
     });
 

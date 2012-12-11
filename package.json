@@ -1,6 +1,6 @@
 {
   "name": "flow",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "author": "Nick Thompson <ncthom91@gmail.com>",
   "description": "An audio-visual WebRTC experiment.",
   "dependencies": {
