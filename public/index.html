@@ -9,15 +9,16 @@
     <div id="container"></div>
     <div id="info">
       <p>
-        Flow is an audiovisual HTML5/WebRTC experiment which analyzes your microphone input's
-        average frequency, and uses that value to guide a line through space. The only
-        officially supported browser is Chrome. If you haven't already done so, you need
+        Flow is an audiovisual HTML5/WebRTC experiment which uses a simple pitch
+        detection algorithm on your microphone input in real time to guide a 
+        line through space. <strong>Note:</strong> The only officially supported 
+        browser is Chrome. If you haven't already done so, you need
         to enable the "Web Audio Input" flag in "chrome://flags".
       </p>
 
       <p>
         This experiment links users in real time via Socket.io and Node.js, so that
-        each user can see each other users lines, creating a user-driven visual product
+        each user can see each other user, creating some form of user-driven digital artwork
         in each browser window. Your microphone data is not transmitted, only the calculated
         frequency value.
       </p>
